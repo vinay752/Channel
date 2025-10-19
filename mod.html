@@ -300,8 +300,21 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             border-color: var(--color-primary-orange);
         }
+
+        /* NEW: Homepage Dynamic Layout */
+        .homepage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+        }
+        .homepage-lower-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+        }
+
         
-        /* --- 6. LESSON & NOTE CARD STYLES --- */
+        /* --- 6. LESSON & NOTE CARD STYLES (REFINED) --- */
         .lesson-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -319,7 +332,6 @@
             padding: 1.5rem;
         }
         
-        /* NEW: Refined Card Header */
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -341,9 +353,9 @@
         }
         
         .card-title {
-            font-size: 1.25rem; /* Larger title */
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 1.5rem; /* More space */
+            margin-bottom: 1.5rem;
             line-height: 1.4;
             flex-grow: 1;
         }
@@ -352,10 +364,27 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-top: auto; /* Pushes to bottom */
+            margin-top: auto;
         }
         
-        /* NEW: Progress Ring */
+        .card-action-button {
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            /* NEW: On-hover reveal */
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .lesson-card:hover .card-action-button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         .progress-ring {
             width: 40px;
             height: 40px;
@@ -371,7 +400,6 @@
             fill: var(--color-dark-text);
         }
         
-        /* NEW: Status Icon for Complete */
         .status-icon-complete {
             width: 40px;
             height: 40px;
@@ -450,7 +478,6 @@
             font-size: 1.5rem;
         }
         
-        /* NEW: Trending Section */
         .trending-list {
             display: flex;
             flex-direction: column;
@@ -486,7 +513,11 @@
             height: 100%;
             background-color: var(--color-primary-orange);
             border-radius: 4px;
-            transition: width 0.5s ease-out;
+            width: 0; /* NEW: Start at 0 for animation */
+            transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .trending-list.animate .trending-bar {
+            /* Width will be set by JS */
         }
 
 
@@ -596,6 +627,12 @@
         @media (min-width: 1024px) {
             .lesson-grid {
                 grid-template-columns: repeat(3, 1fr);
+            }
+            /* NEW: Dynamic 2-column layout for homepage bottom */
+            .homepage-lower-grid {
+                grid-template-columns: 2fr 1fr;
+                gap: 2rem;
+                align-items: flex-start;
             }
         }
         
@@ -779,6 +816,12 @@
                 container.innerHTML = generateContentHTML(data);
                 container.style.opacity = '1';
                 updateNavActiveState();
+                
+                // NEW: After rendering, set up Intersection Observer for animations
+                if (activeTab === 'playspace') {
+                    setupIntersectionObserver();
+                }
+
             }, 200);
         }
 
@@ -797,58 +840,63 @@
 
         function generatePlayspaceHTML(data) {
             return `
-                <div class="hero-card">
-                    <div class="content-wrapper">
-                        <h1 class="font-futuristic" style="font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2;">Forge Your Next Idea</h1>
-                        <p style="font-size: 1.125rem; color: var(--color-mid-gray); margin-bottom: 2rem; max-width: 50ch;">Welcome to your digital workbench. Explore guides, spark new ideas, and build the future with AI.</p>
-                        <button style="background-color: var(--color-primary-orange); color: var(--color-black); padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; align-self: flex-start;" onclick="setActiveTab('getbuilding')">
-                            Start Building Now &rarr;
-                        </button>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 4rem;">
-                    <h2 class="section-heading font-futuristic">Latest Broadcast</h2>
-                    ${generateLessonCardHTML(data.broadcast, true)}
-                </div>
-
-                <div style="margin-bottom: 4rem;">
-                    <h2 class="section-heading font-futuristic">What's Trending</h2>
-                    <div class="card-base" style="padding: 1.5rem;">
-                        <div class="trending-list">
-                            ${data.trending.map(item => generateTrendingItemHTML(item)).join('')}
+                <div class="homepage-grid">
+                    <div class="hero-card">
+                        <div class="content-wrapper">
+                            <h1 class="font-futuristic" style="font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2;">Forge Your Next Idea</h1>
+                            <p style="font-size: 1.125rem; color: var(--color-mid-gray); margin-bottom: 2rem; max-width: 50ch;">Welcome to your digital workbench. Explore guides, spark new ideas, and build the future with AI.</p>
+                            <button style="background-color: var(--color-primary-orange); color: var(--color-black); padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; align-self: flex-start;" onclick="setActiveTab('getbuilding')">
+                                Start Building Now &rarr;
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div style="margin-bottom: 4rem;">
-                    <h2 class="section-heading font-futuristic">Community Spotlight</h2>
-                    <div class="card-base community-spotlight-card">
-                        <div class="spotlight-image-placeholder">${data.community.imagePlaceholder}</div>
-                        <div class="spotlight-content">
-                            <p class="spotlight-quote">"${data.community.quote}"</p>
-                            <p style="font-weight: 600; text-align: right;">- ${data.community.name}, Creator</p>
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">Latest Broadcast</h2>
+                        ${generateLessonCardHTML(data.broadcast, true)}
+                    </div>
+
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">What's Trending</h2>
+                        <div id="trending-section" class="card-base" style="padding: 1.5rem;">
+                            <div class="trending-list">
+                                ${data.trending.map(item => generateTrendingItemHTML(item)).join('')}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div style="margin-bottom: 4rem;">
-                    <h2 class="section-heading font-futuristic">The AI Toolbox</h2>
-                    <div class="lesson-grid">
-                        ${data.toolbox.map(tool => generateToolCardHTML(tool)).join('')}
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">Community Spotlight</h2>
+                        <div class="card-base community-spotlight-card">
+                            <div class="spotlight-image-placeholder">${data.community.imagePlaceholder}</div>
+                            <div class="spotlight-content">
+                                <p class="spotlight-quote">"${data.community.quote}"</p>
+                                <p style="font-weight: 600; text-align: right;">- ${data.community.name}, Creator</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <h2 class="section-heading font-futuristic">Upcoming Events</h2>
-                    <div class="event-list">
-                        ${data.events.map(event => generateEventItemHTML(event)).join('')}
+                    <div class="homepage-lower-grid">
+                        <div>
+                            <h2 class="section-heading font-futuristic">The AI Toolbox</h2>
+                            <div class="lesson-grid" style="grid-template-columns: 1fr;">
+                                ${data.toolbox.map(tool => generateToolCardHTML(tool)).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="section-heading font-futuristic">Upcoming Events</h2>
+                            <div class="event-list">
+                                ${data.events.map(event => generateEventItemHTML(event)).join('')}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
         function generateTrendingItemHTML(item) {
+            // Note: The width is set via JS when it animates in
             return `
                 <div class="trending-item">
                     <div class="trending-info">
@@ -856,7 +904,7 @@
                         <span class="trending-score">${item.score}%</span>
                     </div>
                     <div class="trending-bar-container">
-                        <div class="trending-bar" style="width: ${item.score}%;"></div>
+                        <div class="trending-bar" data-score="${item.score}"></div>
                     </div>
                 </div>
             `;
@@ -872,7 +920,7 @@
                     <h3 class="card-title" style="margin-top: 0; font-size: 1.25rem;">${tool.name}</h3>
                     <p style="color: var(--color-mid-gray); font-size: 0.875rem; flex-grow: 1; margin-bottom: 1rem;">${tool.description}</p>
                     <div class="card-action-row" style="border-top: none; padding-top: 0;">
-                         <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-primary-orange); display: flex; align-items: center; gap: 0.25rem;">
+                         <span class="card-action-button" style="font-weight: 600; color: var(--color-primary-orange); opacity: 1; transform: translateY(0);">
                             Learn More
                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </span>
@@ -897,7 +945,7 @@
         }
 
         function generateLessonCardHTML(lesson, isFeatured = false) {
-            const actionText = lesson.status === 'Complete' ? 'Review' : (lesson.status === 'In Progress' ? 'Continue' : 'Start');
+            const actionText = lesson.status === 'Complete' ? 'Review' : (lesson.status === 'In Progress' ? 'Continue' : (lesson.status === 'Live Now' ? 'Watch Now' : 'Start'));
             const actionColor = lesson.status === 'Complete' ? 'var(--color-success-green)' : 'var(--color-primary-orange)';
             
             let statusIndicatorHTML = '';
@@ -928,7 +976,7 @@
                     <h3 class="card-title" style="${isFeatured ? 'font-size: 1.5rem;' : ''}">${lesson.title}</h3>
                     <div class="card-action-row">
                         <div style="width: 40px; height: 40px;">${statusIndicatorHTML}</div>
-                        <button style="font-size: 0.875rem; font-weight: 600; color: ${actionColor}; background: none; border: none; display: flex; align-items: center; gap: 0.25rem;">
+                        <button class="card-action-button" style="color: ${actionColor};">
                             <span>${actionText}</span>
                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </button>
@@ -1059,6 +1107,27 @@
                     closeCommandPalette();
                 }
             });
+        }
+        
+        // NEW: Intersection Observer for scroll animations
+        function setupIntersectionObserver() {
+            const trendingSection = document.getElementById('trending-section');
+            if (!trendingSection) return;
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const list = entry.target.querySelector('.trending-list');
+                        list.classList.add('animate');
+                        list.querySelectorAll('.trending-bar').forEach(bar => {
+                            bar.style.width = bar.dataset.score + '%';
+                        });
+                        observer.unobserve(entry.target); // Animate only once
+                    }
+                });
+            }, { threshold: 0.5 }); // Trigger when 50% of the element is visible
+
+            observer.observe(trendingSection);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
