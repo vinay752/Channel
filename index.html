@@ -85,6 +85,13 @@
         .desktop-nav {
             display: none;
             gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .nav-item-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .tab-button {
@@ -106,6 +113,26 @@
         .tab-button.active-tab {
             color: var(--color-primary-orange);
             border-bottom: 2px solid var(--color-primary-orange);
+        }
+        
+        /* NEW: Live Indicator */
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .live-indicator {
+            display: none; /* Hidden by default */
+            background-color: #ef4444;
+            color: var(--color-white);
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            animation: pulse-live 1.5s infinite ease-in-out;
+        }
+        .live-indicator.live-active {
+            display: inline-block;
         }
 
         .menu-toggle {
@@ -292,8 +319,14 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease-out; /* NEW: for hover zoom */
         }
         
+        /* NEW: Hover effect for thumbnail */
+        .lesson-card:hover .card-thumbnail {
+            transform: scale(1.05);
+        }
+
         @keyframes pulse-ring {
             0% { transform: scale(0.6); opacity: 0.8; }
             100% { transform: scale(1.5); opacity: 0; }
@@ -367,27 +400,37 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            padding: 1.5rem;
+            padding: 0; /* Remove padding to let image be flush */
             background-color: var(--color-light-gray);
         }
-
+        
+        /* NEW: Enhanced Spotlight Visuals */
         .spotlight-image-placeholder {
             aspect-ratio: 1 / 1;
-            background-color: var(--color-mid-gray);
-            border-radius: 0.5rem;
+            background: radial-gradient(circle at top left, var(--color-primary-orange), var(--color-black) 80%);
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--color-white);
             font-weight: 600;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .spotlight-content {
+            padding: 1.5rem;
         }
 
         .spotlight-quote {
+            font-size: 1.125rem;
             font-style: italic;
             color: var(--color-dark-text);
             margin-bottom: 1rem;
             border-left: 3px solid var(--color-primary-orange);
             padding-left: 1rem;
+            position: relative;
         }
 
         .event-list {
@@ -458,6 +501,7 @@
             }
             .community-spotlight-card {
                 grid-template-columns: 1fr 2fr;
+                align-items: center;
             }
         }
 
@@ -474,6 +518,9 @@
             .section-subtitle {
                 font-size: 1.125rem;
             }
+            .spotlight-image-placeholder {
+                border-radius: 0.75rem 0.75rem 0 0;
+            }
         }
     </style>
 </head>
@@ -488,7 +535,10 @@
             
             <!-- Desktop Nav -->
             <nav id="desktop-nav" class="desktop-nav">
-                <button data-tab="playspace" class="tab-button active-tab">PLAYSPACE</button>
+                <div class="nav-item-wrapper">
+                    <button data-tab="playspace" class="tab-button active-tab">PLAYSPACE</button>
+                    <span class="live-indicator">LIVE</span>
+                </div>
                 <button data-tab="getbuilding" class="tab-button">GET BUILDING</button>
                 <button data-tab="deepdives" class="tab-button">DEEP DIVES</button>
                 <button data-tab="instantsparks" class="tab-button">INSTANT SPARKS</button>
@@ -509,7 +559,10 @@
             </button>
         </div>
         <nav class="mobile-nav">
-            <button data-tab="playspace" class="tab-button mobile-nav-item active-tab">PLAYSPACE</button>
+            <div class="nav-item-wrapper">
+                 <button data-tab="playspace" class="tab-button mobile-nav-item active-tab">PLAYSPACE</button>
+                 <span class="live-indicator">LIVE</span>
+            </div>
             <button data-tab="getbuilding" class="tab-button mobile-nav-item">GET BUILDING</button>
             <button data-tab="deepdives" class="tab-button mobile-nav-item">DEEP DIVES</button>
             <button data-tab="instantsparks" class="tab-button mobile-nav-item">INSTANT SPARKS</button>
@@ -545,7 +598,7 @@
                 community: {
                     name: "Alex Rivera",
                     quote: "The Python RAG guide was a game-changer for my project. I was able to connect a local LLM to my company's documentation in a single afternoon!",
-                    imagePlaceholder: "Project Screenshot"
+                    imagePlaceholder: "Project by Alex"
                 },
                 toolbox: [
                     { name: "Ollama", description: "Run powerful open-source LLMs locally on your own machine. Essential for private data projects." },
@@ -651,7 +704,7 @@
                     <h2 class="section-heading font-futuristic">Community Spotlight</h2>
                     <div class="card-base community-spotlight-card">
                         <div class="spotlight-image-placeholder">${data.community.imagePlaceholder}</div>
-                        <div>
+                        <div class="spotlight-content">
                             <p class="spotlight-quote">"${data.community.quote}"</p>
                             <p style="font-weight: 600; text-align: right;">- ${data.community.name}, Creator</p>
                         </div>
@@ -762,6 +815,17 @@
 
         // --- EVENT HANDLERS & INITIALIZATION ---
 
+        function updateLiveIndicator() {
+            const isLive = contentData.playspace.broadcast.status === 'Live Now';
+            document.querySelectorAll('.live-indicator').forEach(indicator => {
+                if (isLive) {
+                    indicator.classList.add('live-active');
+                } else {
+                    indicator.classList.remove('live-active');
+                }
+            });
+        }
+
         function setActiveTab(tabId) {
             if (activeTab === tabId) return;
             activeTab = tabId;
@@ -794,6 +858,7 @@
             document.getElementById('current-year').textContent = new Date().getFullYear();
             setupEventListeners();
             renderContent();
+            updateLiveIndicator(); // Check for live status on page load
         });
     </script>
 </body>
