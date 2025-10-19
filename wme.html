@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Forge - Digital Workbench</title>
+    <!-- Using Pure CSS -->
+    <style>
+        /* --- 1. COLOR VARIABLES & GLOBAL RESET --- */
+        :root {
+            --color-black: #000000;
+            --color-white: #ffffff;
+            --color-primary-orange: #FFA500;
+            --color-success-green: #10B981; 
+            --color-light-gray: #f9fafb;
+            --color-border-gray: #e5e7eb;
+            --color-dark-text: #111827;
+            --color-mid-gray: #6b7280;
+            --max-width: 1280px;
+            --header-height: 64px;
+        }
+
+        /* Custom fonts loaded via Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-white);
+            color: var(--color-dark-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            /* Subtle dot-grid background with parallax effect */
+            background-image: radial-gradient(var(--color-border-gray) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-attachment: fixed;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .font-futuristic {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* --- 2. HEADER & NAVIGATION --- */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border-gray);
+            height: var(--header-height);
+        }
+
+        .header-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-primary-orange);
+        }
+        
+        .logo-accent {
+            color: var(--color-dark-text);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .desktop-nav {
+            display: none;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .nav-item-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-button {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-mid-gray);
+            background: none;
+            border: none;
+            padding: 0.25rem 0;
+            transition: color 0.2s, border-bottom 0.2s;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .tab-button:hover {
+            color: var(--color-dark-text);
+        }
+
+        .tab-button.active-tab {
+            color: var(--color-primary-orange);
+            border-bottom: 2px solid var(--color-primary-orange);
+        }
+        
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .live-indicator {
+            display: none;
+            background-color: #ef4444;
+            color: var(--color-white);
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            animation: pulse-live 1.5s infinite ease-in-out;
+        }
+        .live-indicator.live-active {
+            display: inline-block;
+        }
+
+        .menu-toggle, .search-toggle {
+            display: block;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            color: var(--color-dark-text);
+        }
+
+        /* --- 3. MOBILE MENU --- */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-light-gray);
+            z-index: 40;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .mobile-menu-open {
+            transform: translateX(0);
+        }
+
+        .mobile-nav {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem;
+        }
+
+        .mobile-nav-item {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--color-dark-text);
+            padding: 0.5rem 0;
+            text-align: left;
+            border-left: 4px solid transparent;
+        }
+        
+        .mobile-nav-item.active-tab {
+            color: var(--color-primary-orange);
+            border-left-color: var(--color-primary-orange);
+            padding-left: 0.5rem;
+        }
+
+        /* --- 4. MAIN LAYOUT & SECTIONS --- */
+        .main-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+        
+        .section-heading {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-dark-text);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-border-gray);
+            padding-bottom: 0.75rem;
+        }
+        
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--color-dark-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--color-mid-gray);
+            margin-bottom: 2.5rem;
+        }
+
+        /* --- 5. HOMEPAGE (PLAYSPACE) STYLES --- */
+        /* REFINED: Hero Section with Creator */
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: center;
+            gap: 2rem;
+            padding: 3rem 2rem;
+            background-color: var(--color-light-gray);
+            border: 1px solid var(--color-border-gray);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .creator-photo-wrapper {
+            justify-self: center;
+        }
+        .creator-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--color-mid-gray);
+            border: 4px solid var(--color-primary-orange);
+            background-image: url('https://placehold.co/150x150/222/ffa500?text=You');
+            background-size: cover;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .hero-text-content {
+            text-align: center;
+        }
+
+        /* NEW: Social Proof Bar */
+        .social-proof-bar {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--color-light-gray);
+            border: 1px solid var(--color-border-gray);
+            border-radius: 0.5rem;
+            margin-bottom: 4rem;
+            font-weight: 500;
+        }
+        .social-proof-bar strong {
+            color: var(--color-primary-orange);
+            font-weight: 700;
+        }
+
+        .card-base {
+            background-color: var(--color-white);
+            border-radius: 0.75rem;
+            border: 1px solid var(--color-border-gray);
+            transition: all 0.2s ease-out;
+            overflow: hidden;
+        }
+        
+        .card-base:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: var(--color-primary-orange);
+        }
+
+        /* NEW: Homepage Dynamic Layout */
+        .homepage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+        }
+        .homepage-lower-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+        }
+
+        
+        /* --- 6. LESSON & NOTE CARD STYLES (REFINED) --- */
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* REFINED: Broadcast Card */
+        .broadcast-card {
+            background: linear-gradient(135deg, var(--color-dark-text) 0%, var(--color-black) 100%);
+            color: var(--color-white);
+            border: none;
+        }
+        .broadcast-card .card-title {
+            color: var(--color-white);
+        }
+        .broadcast-card .card-type, .broadcast-card .card-duration {
+            color: var(--color-mid-gray);
+        }
+        
+        .lesson-card {
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .field-note-card, .tool-card {
+            padding: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-type {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-mid-gray);
+        }
+        
+        .card-duration {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-mid-gray);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        
+        .card-action-row {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: auto;
+        }
+        
+        .card-action-button {
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .card-base:hover .card-action-button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .broadcast-card .card-action-button {
+            opacity: 1;
+            transform: translateY(0);
+            background-color: var(--color-primary-orange);
+            color: var(--color-black);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .progress-ring {
+            width: 40px;
+            height: 40px;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-ring__text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            fill: var(--color-dark-text);
+        }
+        
+        .status-icon-complete {
+            width: 40px;
+            height: 40px;
+            color: var(--color-success-green);
+        }
+
+        /* --- 7. NEW HOMEPAGE SECTION STYLES --- */
+        .community-spotlight-card {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 0;
+            background-color: var(--color-light-gray);
+        }
+        
+        .spotlight-image-placeholder {
+            aspect-ratio: 1 / 1;
+            background: radial-gradient(circle at top left, var(--color-primary-orange), var(--color-black) 80%);
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-white);
+            font-weight: 600;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .spotlight-content {
+            padding: 1.5rem;
+        }
+
+        .spotlight-quote {
+            font-size: 1.125rem;
+            font-style: italic;
+            color: var(--color-dark-text);
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--color-primary-orange);
+            padding-left: 1rem;
+        }
+
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .event-item {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .event-date {
+            background-color: var(--color-primary-orange);
+            color: var(--color-black);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 700;
+            min-width: 60px;
+        }
+
+        .event-date span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .event-date .month {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .event-date .day {
+            font-size: 1.5rem;
+        }
+        
+        .trending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .trending-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .trending-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+        .trending-topic {
+            font-weight: 500;
+            color: var(--color-dark-text);
+        }
+        .trending-score {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-mid-gray);
+        }
+        .trending-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--color-border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .trending-bar {
+            height: 100%;
+            background-color: var(--color-primary-orange);
+            border-radius: 4px;
+            width: 0;
+            transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .trending-list.animate .trending-bar {
+            /* Width will be set by JS */
+        }
+
+
+        /* --- 8. COMMAND PALETTE (CMD+K) --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .command-palette-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            padding-top: 10vh;
+        }
+        
+        .command-palette {
+            width: 90%;
+            max-width: 600px;
+            background-color: var(--color-white);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border-gray);
+        }
+        
+        #command-input {
+            width: 100%;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 1rem;
+            color: var(--color-dark-text);
+        }
+
+        .command-results-list {
+            list-style: none;
+            max-height: 40vh;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .command-item:hover, .command-item.selected {
+            background-color: var(--color-light-gray);
+        }
+        
+        .command-item-category {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-mid-gray);
+        }
+
+        /* --- 9. FOOTER --- */
+        .footer {
+            background-color: var(--color-white);
+            text-align: center;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--color-border-gray);
+            margin-top: 3rem;
+            color: var(--color-mid-gray);
+        }
+        
+        .footer a {
+            color: var(--color-mid-gray);
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--color-primary-orange);
+        }
+
+        /* --- 10. RESPONSIVENESS (Media Queries) --- */
+        @media (min-width: 768px) {
+            .menu-toggle {
+                display: none;
+            }
+            .desktop-nav {
+                display: flex;
+            }
+            .lesson-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .community-spotlight-card {
+                grid-template-columns: 1fr 2fr;
+                align-items: center;
+            }
+            .hero-section {
+                grid-template-columns: auto 1fr;
+                text-align: left;
+            }
+             .hero-text-content {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .lesson-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .homepage-lower-grid {
+                grid-template-columns: 2fr 1fr;
+                gap: 2rem;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            .section-subtitle {
+                font-size: 1.125rem;
+            }
+            .spotlight-image-placeholder {
+                border-radius: 0.75rem 0.75rem 0 0;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- --- Header and Navigation --- -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo font-futuristic">
+                Forge <span class="logo-accent">AI</span>
+            </a>
+            
+            <div class="header-actions">
+                <!-- Desktop Nav -->
+                <nav id="desktop-nav" class="desktop-nav">
+                    <div class="nav-item-wrapper">
+                        <button data-tab="playspace" class="tab-button active-tab">PLAYSPACE</button>
+                        <span class="live-indicator">LIVE</span>
+                    </div>
+                    <button data-tab="getbuilding" class="tab-button">GET BUILDING</button>
+                    <button data-tab="deepdives" class="tab-button">DEEP DIVES</button>
+                    <button data-tab="instantsparks" class="tab-button">INSTANT SPARKS</button>
+                </nav>
+
+                <!-- Search Toggle -->
+                <button id="search-toggle" class="search-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="menu-toggle" class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Overlay -->
+    <div id="mobile-menu" class="mobile-menu">
+        <div class="mobile-nav-header">
+            <button id="close-menu" class="menu-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <nav class="mobile-nav">
+            <div class="nav-item-wrapper">
+                 <button data-tab="playspace" class="tab-button mobile-nav-item active-tab">PLAYSPACE</button>
+                 <span class="live-indicator">LIVE</span>
+            </div>
+            <button data-tab="getbuilding" class="tab-button mobile-nav-item">GET BUILDING</button>
+            <button data-tab="deepdives" class="tab-button mobile-nav-item">DEEP DIVES</button>
+            <button data-tab="instantsparks" class="tab-button mobile-nav-item">INSTANT SPARKS</button>
+        </nav>
+    </div>
+
+    <!-- --- Main Content Area --- -->
+    <main class="main-content">
+        
+        <!-- Tab Content Container -->
+        <div id="content-container">
+            <!-- Content for active tab will be injected here -->
+        </div>
+
+    </main>
+
+    <!-- --- NEW: Command Palette (CMD+K) --- -->
+    <div id="command-palette" class="command-palette-overlay hidden">
+        <div class="command-palette">
+            <div class="search-input-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--color-mid-gray);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="text" id="command-input" placeholder="Search guides, concepts, or sparks...">
+            </div>
+            <ul id="command-results" class="command-results-list">
+                <!-- Search results will be injected here -->
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- --- Footer --- -->
+    <footer class="footer">
+        <p>&copy; <span id="current-year"></span> AI Content Forge. Powered by Generative Intelligence.</p>
+        <div style="display:flex; justify-content:center; gap: 1rem; margin-top: 0.5rem;">
+            <a href="#">YouTube</a>
+            <a href="#">X (Twitter)</a>
+        </div>
+    </footer>
+
+    <script>
+        // Mock data structure 
+        const contentData = {
+            playspace: {
+                title: "Your AI Playspace",
+                subtitle: "A clean slate for your next big idea. Let's build something amazing.",
+                creator: {
+                    name: "Your Name",
+                    mission: "I translate the complex world of AI into practical skills. My goal is to empower you to build amazing things, whether you write code or not."
+                },
+                broadcast: { title: "The Future of Autonomous Agents: A Deep Dive", duration: "28 Min", type: "Keynote", status: "Live Now" },
+                trending: [
+                    { topic: "Autonomous Agents", score: 92 },
+                    { topic: "Local RAG Systems", score: 85 },
+                    { topic: "Multimodal Models (GPT-4o)", score: 78 },
+                    { topic: "AI Ethics in Deployment", score: 65 },
+                ],
+                community: {
+                    name: "Alex Rivera",
+                    quote: "The Python RAG guide was a game-changer for my project. I was able to connect a local LLM to my company's documentation in a single afternoon!",
+                    imagePlaceholder: "Project by Alex"
+                },
+                toolbox: [
+                    { name: "Ollama", description: "Run powerful open-source LLMs locally on your own machine." },
+                    { name: "Pinokio", description: "An amazing one-click installer for deploying various AI applications." },
+                    { name: "LM Studio", description: "A beautiful GUI for experimenting with local language models." },
+                ],
+                events: [
+                    { month: "OCT", day: "25", title: "Live Q&A: Building Your First AI Agent", description: "Join me live on YouTube to ask your questions about agentic workflows." },
+                    { month: "NOV", day: "02", title: "Video Premiere: The Ultimate Guide to GPT-4o Vision", description: "A deep dive into the practical applications of multimodal AI." },
+                ]
+            },
+            getbuilding: {
+                title: "GET BUILDING: Code & No-Code Guides",
+                subtitle: "Full-length guides for creating and automating.",
+                lessons: [
+                    { title: "Building an Enterprise GPT for Report Generation", duration: "18 Min", type: "No-Code Guide", status: "New" },
+                    { title: "Python RAG: Connecting LLMs to Your Private Data", duration: "42 Min", type: "Code Guide", status: "New" },
+                    { title: "Automated Video Editing with DaVinci Resolve AI", duration: "25 Min", type: "No-Code Guide", status: "Complete" },
+                    { title: "Building a Custom AI Agent with LangChain", duration: "35 Min", type: "Code Guide", status: "In Progress", progress: 75 },
+                ]
+            },
+            deepdives: {
+                title: "DEEP DIVES: Concepts & Architecture",
+                subtitle: "Expert breakdowns of complex models, ethics, and the science behind generative AI.",
+                lessons: [
+                    { title: "The Hidden Power of the Transformer Model", duration: "8 Min", type: "Concept", status: "New" },
+                    { title: "Diffusion Models: How Midjourney Creates Imagery", duration: "10 Min", type: "Concept", status: "In Progress", progress: 40 },
+                    { title: "Why Data Licensing is the Next AI Battleground", duration: "12 Min", type: "Ethics", status: "Complete" },
+                ]
+            },
+            instantsparks: {
+                title: "INSTANT SPARKS: High-Impact Tips",
+                subtitle: "Lightning-fast demonstrations for instant workflow boosts.",
+                lessons: [
+                    { title: "One Prompt to Generate 5 Stunning Logos", duration: "45 Sec", type: "Quick Tip", status: "New" },
+                    { title: "The Best Voice Cloning Tool You Aren't Using", duration: "58 Sec", type: "Quick Tip", status: "New" },
+                    { title: "Fixing Bad Code with GitHub Copilot", duration: "30 Sec", type: "Quick Tip", status: "Complete" },
+                ]
+            }
+        };
+
+        let activeTab = 'playspace';
+
+        // --- CORE UI RENDERING FUNCTIONS ---
+
+        function updateNavActiveState() {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active-tab');
+                if (btn.dataset.tab === activeTab) {
+                    btn.classList.add('active-tab');
+                }
+            });
+        }
+        
+        function renderContent() {
+            const container = document.getElementById('content-container');
+            const data = contentData[activeTab];
+
+            container.style.opacity = '0';
+            container.style.transition = 'opacity 0.2s ease-out';
+            
+            setTimeout(() => {
+                container.innerHTML = generateContentHTML(data);
+                container.style.opacity = '1';
+                updateNavActiveState();
+                
+                if (activeTab === 'playspace') {
+                    setupIntersectionObserver();
+                }
+
+            }, 200);
+        }
+
+        function generateContentHTML(data) {
+            if (activeTab === 'playspace') {
+                return generatePlayspaceHTML(data);
+            }
+            
+            let html = `
+                <h1 class="section-title font-futuristic">${data.title}</h1>
+                <p class="section-subtitle">${data.subtitle}</p>
+                ${generateLessonGridHTML(data.lessons)}
+            `;
+            return html;
+        }
+
+        function generatePlayspaceHTML(data) {
+            return `
+                <div class="homepage-grid">
+                    <!-- REFINED HERO SECTION -->
+                    <div class="hero-section">
+                        <div class="creator-photo-wrapper">
+                            <div class="creator-photo"></div>
+                        </div>
+                        <div class="hero-text-content">
+                             <h1 class="font-futuristic" style="font-size: 2.5rem; margin-bottom: 1rem; line-height: 1.2;">Hi, I'm ${data.creator.name}</h1>
+                            <p style="font-size: 1.125rem; color: var(--color-mid-gray); margin-bottom: 0; max-width: 60ch; margin-left: auto; margin-right: auto;">${data.creator.mission}</p>
+                        </div>
+                    </div>
+
+                    <!-- NEW: SOCIAL PROOF BAR -->
+                    <div class="social-proof-bar">
+                        Join <strong>10,000+</strong> creators learning AI every week on YouTube
+                    </div>
+
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">Latest Broadcast</h2>
+                        ${generateLessonCardHTML(data.broadcast, true)}
+                    </div>
+
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">What's Trending</h2>
+                        <div id="trending-section" class="card-base" style="padding: 1.5rem;">
+                            <div class="trending-list">
+                                ${data.trending.map(item => generateTrendingItemHTML(item)).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 4rem;">
+                        <h2 class="section-heading font-futuristic">Community Spotlight</h2>
+                        <div class="card-base community-spotlight-card">
+                            <div class="spotlight-image-placeholder">${data.community.imagePlaceholder}</div>
+                            <div class="spotlight-content">
+                                <p class="spotlight-quote">"${data.community.quote}"</p>
+                                <p style="font-weight: 600; text-align: right;">- ${data.community.name}, Creator</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="homepage-lower-grid">
+                        <div>
+                            <h2 class="section-heading font-futuristic">The AI Toolbox</h2>
+                            <div class="lesson-grid" style="grid-template-columns: 1fr;">
+                                ${data.toolbox.map(tool => generateToolCardHTML(tool)).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="section-heading font-futuristic">Upcoming Events</h2>
+                            <div class="event-list">
+                                ${data.events.map(event => generateEventItemHTML(event)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateTrendingItemHTML(item) {
+            return `
+                <div class="trending-item">
+                    <div class="trending-info">
+                        <span class="trending-topic">${item.topic}</span>
+                        <span class="trending-score">${item.score}%</span>
+                    </div>
+                    <div class="trending-bar-container">
+                        <div class="trending-bar" data-score="${item.score}"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateLessonGridHTML(lessons) {
+            return `<div class="lesson-grid">${lessons.map(lesson => generateLessonCardHTML(lesson, false)).join('')}</div>`;
+        }
+        
+        function generateToolCardHTML(tool) {
+             return `
+                <a href="#" class="card-base tool-card">
+                    <h3 class="card-title" style="margin-top: 0; font-size: 1.25rem;">${tool.name}</h3>
+                    <p style="color: var(--color-mid-gray); font-size: 0.875rem; flex-grow: 1; margin-bottom: 1rem;">${tool.description}</p>
+                    <div class="card-action-row" style="border-top: none; padding-top: 0;">
+                         <span class="card-action-button" style="font-weight: 600; color: var(--color-primary-orange); opacity: 1; transform: translateY(0);">
+                            Learn More
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        </span>
+                    </div>
+                </a>
+            `;
+        }
+
+        function generateEventItemHTML(event) {
+            return `
+                <div class="event-item">
+                    <div class="event-date">
+                        <span class="month">${event.month}</span>
+                        <span class="day">${event.day}</span>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 600;">${event.title}</h3>
+                        <p style="font-size: 0.875rem; color: var(--color-mid-gray);">${event.description}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateLessonCardHTML(lesson, isFeatured = false) {
+            const actionText = lesson.status === 'Complete' ? 'Review' : (lesson.status === 'In Progress' ? 'Continue' : (lesson.status === 'Live Now' ? 'Watch Now' : 'Start'));
+            const actionColor = lesson.status === 'Complete' ? 'var(--color-success-green)' : 'var(--color-primary-orange)';
+            
+            let statusIndicatorHTML = '';
+            if (lesson.status === 'In Progress') {
+                const radius = 18;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (lesson.progress / 100) * circumference;
+                statusIndicatorHTML = `
+                    <svg class="progress-ring" viewBox="0 0 40 40">
+                        <circle cx="20" cy="20" r="${radius}" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--color-border-gray')}" stroke-width="4" fill="transparent" />
+                        <circle class="progress-ring__circle" cx="20" cy="20" r="${radius}" stroke="${actionColor}" stroke-width="4" fill="transparent"
+                                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" />
+                        <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="progress-ring__text">${lesson.progress}%</text>
+                    </svg>
+                `;
+            } else if (lesson.status === 'Complete') {
+                statusIndicatorHTML = `
+                     <svg class="status-icon-complete" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                `;
+            }
+            
+            const cardClass = isFeatured ? 'card-base lesson-card broadcast-card' : 'card-base lesson-card';
+
+            return `
+                <div class="${cardClass}">
+                    <div class="card-header">
+                        <span class="card-type">${lesson.type.toUpperCase()}</span>
+                        <span class="card-duration">${lesson.duration}</span>
+                    </div>
+                    <h3 class="card-title" style="${isFeatured ? 'font-size: 1.5rem;' : ''}">${lesson.title}</h3>
+                    <div class="card-action-row">
+                        <div style="width: 40px; height: 40px;">${statusIndicatorHTML}</div>
+                        <button class="card-action-button" style="color: ${actionColor};">
+                            <span>${actionText}</span>
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- COMMAND PALETTE LOGIC ---
+        const commandPalette = document.getElementById('command-palette');
+        const commandInput = document.getElementById('command-input');
+        const commandResults = document.getElementById('command-results');
+        let allSearchableItems = [];
+
+        function buildSearchIndex() {
+            allSearchableItems = [];
+            Object.keys(contentData).forEach(key => {
+                if (contentData[key].lessons) {
+                    contentData[key].lessons.forEach(lesson => {
+                        allSearchableItems.push({ ...lesson, tab: key, category: contentData[key].title });
+                    });
+                }
+            });
+            if (contentData.playspace.broadcast) allSearchableItems.push({ ...contentData.playspace.broadcast, tab: 'playspace', category: 'Broadcast' });
+            if (contentData.playspace.toolbox) contentData.playspace.toolbox.forEach(tool => allSearchableItems.push({ title: tool.name, description: tool.description, type: 'Tool', tab: 'playspace', category: 'Toolbox' }));
+        }
+
+        function openCommandPalette() {
+            commandPalette.classList.remove('hidden');
+            commandInput.focus();
+            renderSearchResults('');
+        }
+
+        function closeCommandPalette() {
+            commandPalette.classList.add('hidden');
+            commandInput.value = '';
+        }
+
+        function renderSearchResults(query) {
+             const lowerCaseQuery = query.toLowerCase();
+
+            const scoredResults = allSearchableItems.map(item => {
+                const lowerCaseTitle = item.title.toLowerCase();
+                let score = 0;
+                if (lowerCaseTitle.startsWith(lowerCaseQuery)) {
+                    score = 10;
+                } else if (lowerCaseTitle.includes(lowerCaseQuery)) {
+                    score = 5;
+                } else if (item.type && item.type.toLowerCase().includes(lowerCaseQuery)) {
+                    score = 1;
+                }
+                return { item, score };
+            })
+            .filter(result => result.score > 0)
+            .sort((a, b) => b.score - a.score);
+
+            commandResults.innerHTML = '';
+            
+            if (scoredResults.length === 0) {
+                commandResults.innerHTML = `<li style="padding: 1rem; color: var(--color-mid-gray);">${query ? `No results for "${query}"` : 'Start typing to search...'}</li>`;
+                return;
+            }
+
+            scoredResults.slice(0, 5).forEach(result => {
+                const { item } = result;
+                const li = document.createElement('li');
+                li.className = 'command-item';
+                li.innerHTML = `
+                    <span>${item.title}</span>
+                    <span class="command-item-category">${item.type}</span>
+                `;
+                li.addEventListener('click', () => {
+                    setActiveTab(item.tab);
+                    closeCommandPalette();
+                });
+                commandResults.appendChild(li);
+            });
+        }
+
+
+        // --- EVENT HANDLERS & INITIALIZATION ---
+
+        function updateLiveIndicator() {
+            const isLive = contentData.playspace.broadcast.status === 'Live Now';
+            document.querySelectorAll('.live-indicator').forEach(indicator => {
+                indicator.classList.toggle('live-active', isLive);
+            });
+        }
+
+        function setActiveTab(tabId) {
+            if (activeTab === tabId) return;
+            activeTab = tabId;
+            renderContent();
+        }
+
+        function handleTabClick(event) {
+            const tabButton = event.target.closest('.tab-button');
+            if (tabButton && tabButton.dataset.tab) {
+                setActiveTab(tabButton.dataset.tab);
+                document.getElementById('mobile-menu').classList.remove('mobile-menu-open');
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('desktop-nav').addEventListener('click', handleTabClick);
+            document.querySelector('.mobile-nav').addEventListener('click', handleTabClick);
+            
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.add('mobile-menu-open');
+            });
+
+            document.getElementById('close-menu').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.remove('mobile-menu-open');
+            });
+            
+            document.getElementById('search-toggle').addEventListener('click', openCommandPalette);
+            commandPalette.addEventListener('click', (e) => {
+                if (e.target === commandPalette) closeCommandPalette();
+            });
+            commandInput.addEventListener('input', () => renderSearchResults(commandInput.value));
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    openCommandPalette();
+                }
+                if (e.key === 'Escape' && !commandPalette.classList.contains('hidden')) {
+                    closeCommandPalette();
+                }
+            });
+        }
+        
+        // NEW: Intersection Observer for scroll animations
+        function setupIntersectionObserver() {
+            const trendingSection = document.getElementById('trending-section');
+            if (!trendingSection) return;
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const list = entry.target.querySelector('.trending-list');
+                        list.classList.add('animate');
+                        list.querySelectorAll('.trending-bar').forEach(bar => {
+                            bar.style.width = bar.dataset.score + '%';
+                        });
+                        observer.unobserve(entry.target); // Animate only once
+                    }
+                });
+            }, { threshold: 0.5 }); // Trigger when 50% of the element is visible
+
+            observer.observe(trendingSection);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            buildSearchIndex();
+            setupEventListeners();
+            renderContent();
+            updateLiveIndicator();
+        });
+    </script>
+</body>
+</html>
+
