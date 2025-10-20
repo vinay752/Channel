@@ -1082,6 +1082,8 @@
             if (tabButton && tabButton.dataset.tab) {
                 setActiveTab(tabButton.dataset.tab);
                 document.getElementById('mobile-menu').classList.remove('mobile-menu-open');
+                document.getElementById('close-menu').style.display='none';
+                document.getElementById('menu-toggle').style.display='block';
             }
         }
 
