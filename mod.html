@@ -1103,6 +1103,15 @@
                  document.getElementById('menu-toggle').style.display='block';
                 
             });
+
+            window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        // Reset menu state for desktop
+        mobileMenu.classList.remove('mobile-menu-open');
+        document.getElementById('close-menu').style.display = 'none';
+        document.getElementById('menu-toggle').style.display = 'none';
+    }
+});
             
             document.getElementById('search-toggle').addEventListener('click', openCommandPalette);
             commandPalette.addEventListener('click', (e) => {
